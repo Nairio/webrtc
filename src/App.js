@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from 'react';
 //import {io} from 'socket.io-client';
-import {firebaseIO} from './firebase';
-import CanvasDrawing from "./CanvasDrawing";
+import {firebaseIO} from './firebase/signal';
+import CanvasDrawing from "./draw/CanvasDrawing";
 import "./App.css";
 
 

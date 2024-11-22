@@ -2,9 +2,7 @@ video {
     border: solid 1px #000000;
     margin: 2px;
 }
-html, body {
-    position: fixed;
-    height: 100vh;
+body {
     user-select: none;
-    overflow: hidden;
 }
+
