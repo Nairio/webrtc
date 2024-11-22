@@ -1,14 +1,20 @@
 import React, {useEffect, useRef} from 'react';
-import {io} from './firebase'; // import {io} from 'socket.io-client';
+//import {io} from 'socket.io-client';
+import {firebaseIO} from './firebase';
+import CanvasDrawing from "./CanvasDrawing";
+import "./App.css";
+
+
 
 const App = () => {
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
+
     const peerConnection = useRef(null);
     const socket = useRef(null);
 
     useEffect(() => {
-        socket.current = io('https://localhost:3001');
+        socket.current = firebaseIO('https://localhost:3001');
         socket.current.on('offer', async (offer) => {
             await handleOffer(offer);
         });
@@ -42,12 +48,37 @@ const App = () => {
         };
 
         pc.ontrack = (event) => {
-            if (remoteVideoRef.current) {
-                remoteVideoRef.current.srcObject = event.streams[0];
+            const tracks = event.streams[0].getVideoTracks();
+
+            if (remoteVideoRef.current && tracks[0]) {
+                remoteVideoRef.current.srcObject = new MediaStream([tracks[0]]);
             }
+
+            /*
+                        const canvas = document.getElementById("showCanvas");
+                        const context = canvas.getContext("2d");
+                        const videoTrack = tracks[0];
+                        const videoElement = document.createElement('video');
+                        videoElement.playsInline=true;
+                        videoElement.srcObject = new MediaStream([videoTrack]);
+                        videoElement.onplay = () => {
+                            const draw = () => {
+                                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                                requestAnimationFrame(draw);
+                            }
+                            draw();
+                        };
+                        videoElement.play();
+            */
+
         };
 
         localVideoRef.current.srcObject.getTracks().forEach((track) => pc.addTrack(track, localVideoRef.current.srcObject));
+
+        /*
+                const canvasStream = document.getElementById("drawCanvas").captureStream(30);
+                canvasStream.getTracks().forEach((track) => pc.addTrack(track, canvasStream));
+        */
 
         return pc;
     };
@@ -72,9 +103,18 @@ const App = () => {
 
     return (
         <div>
+            <div id={"console"}/>
             <h1>WebRTC React STUN</h1>
-            <video ref={localVideoRef} autoPlay muted width="200" playsInline={true}/>
-            <video ref={remoteVideoRef} autoPlay width="200" playsInline={true}/>
+            <video ref={localVideoRef} autoPlay muted height={window.innerHeight * 0.1} playsInline={true}/>
+            <video ref={remoteVideoRef} autoPlay height={window.innerHeight * 0.1} playsInline={true}/>
+            <br/>
+{/*            <canvas
+                id={"showCanvas"}
+                width={window.innerWidth/2 - 32}
+                height={(window.innerWidth/2 - 32)/1.3}
+                style={{border: "1px solid black"}}
+            />*/}
+            <CanvasDrawing/>
         </div>
     );
 };
