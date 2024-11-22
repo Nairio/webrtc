@@ -1,6 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-//import {io} from 'socket.io-client';
-import {io} from './firebase';
+import {io} from './firebase'; // import {io} from 'socket.io-client';
 
 const App = () => {
     const localVideoRef = useRef(null);
@@ -22,6 +21,7 @@ const App = () => {
 
         navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
             localVideoRef.current.srcObject = stream;
+            startCall()
         });
 
         return () => {
@@ -72,10 +72,9 @@ const App = () => {
 
     return (
         <div>
-            <h1>WebRTC React Simple Demo</h1>
+            <h1>WebRTC React STUN</h1>
             <video ref={localVideoRef} autoPlay muted width="200" playsInline={true}/>
             <video ref={remoteVideoRef} autoPlay width="200" playsInline={true}/>
-            <button onClick={startCall}>Start Call</button>
         </div>
     );
 };
