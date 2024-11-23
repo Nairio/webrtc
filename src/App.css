@@ -1,8 +1,69 @@
 video {
     border: solid 1px #000000;
     margin: 2px;
+    height: 10vh;
 }
-body {
+body  {
     user-select: none;
+    margin: 0;
+    overflow: hidden;
 }
 
+#root {
+    background: green;
+    height: 100%;
+    overflow: auto;
+    padding: 8px;
+}
+
+.container {
+    background: green;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 16px);
+}
+
+.top {
+    background-color: #b9e7ba;
+    display: flex;
+    padding: 4px;
+}
+
+.bottom {
+    background-color: #85d379;
+    flex-grow: 1;
+}
+
+canvas {
+    border: 1px solid black;
+    display: block;
+}
+
+#dashboard {
+    position: absolute;
+}
+
+select {
+    width: 100px;
+    height: 26px;
+}
+
+input {
+    width:70px;
+    height: 20px;
+}
+
+label {
+    font-weight: bold;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    margin-left: 8px;
+}
+
+label>* {
+    display: block;
+    margin-bottom: 4px;
+}
