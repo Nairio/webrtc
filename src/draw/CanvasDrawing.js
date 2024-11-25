@@ -1,24 +1,61 @@
 import React, {useEffect, useRef, useState} from "react";
 import {firebaseDraw} from "./firebase";
+import {log} from "../components/console";
 
 
-
-const lp = {x: 0, y: 0};
+const lp = {x: 0, y: 0, datas: null};
 
 const CanvasDrawing = () => {
     const canvasRef = useRef(null);
+
     const [isDrawing, setIsDrawing] = useState(false);
 
     useEffect(() => {
-        firebaseDraw.on((datas) => {
+        const drawFromServer = (datas) => {
+            lp.datas = datas;
             clearCanvas();
-            datas.forEach(data => {
-                data.type === "stroke" && drawStroke(data.isMe ? "red" : "green", ...data.data);
-            })
-        });
+            const w = canvasRef.current.width;
+            const h = canvasRef.current.height;
 
-        canvasRef.current.width = document.getElementsByClassName("bottom")[0].clientWidth;
-        canvasRef.current.height = document.getElementsByClassName("bottom")[0].clientHeight ;
+            datas.forEach(data => {
+                if (data.type !== "stroke") return;
+                const [x1, y1, x2, y2] = data.data;
+                drawStroke(data.isMe ? "red" : "green", x1 * w, y1 * h, x2 * w, y2 * h);
+            })
+        }
+
+        firebaseDraw.on(drawFromServer);
+
+        window.onresize = () => {
+            setTimeout(()=>{
+                const aspect = 1;
+
+                const container = document.getElementsByClassName("container")[0];
+
+                if (window.innerWidth > window.innerHeight) {
+                    container.classList.add("horizontal");
+                    log({w: window.innerWidth, h: window.innerHeight})
+                    log("horizontal")
+                } else {
+                    container.classList.remove("horizontal");
+                    log({w: window.innerWidth, h: window.innerHeight})
+                    log("vertical")
+
+                }
+
+                const parentWidth = canvasRef.current.parentElement.clientWidth - 4;
+                const parentHeight = canvasRef.current.parentElement.clientHeight - 4;
+
+                const width = parentWidth * aspect > parentHeight ? parentHeight / aspect : parentWidth;
+                const height = parentWidth * aspect > parentHeight ? parentHeight : parentWidth * aspect;
+
+                canvasRef.current.width = width;
+                canvasRef.current.height = height;
+                lp.datas && drawFromServer(lp.datas);
+            }, 300)
+        };
+
+        window.onresize()
 
     }, []);
 
@@ -54,9 +91,11 @@ const CanvasDrawing = () => {
         const offsetX = pageX - rect.left;
         const offsetY = pageY - rect.top;
 
+        const w = canvasRef.current.width;
+        const h = canvasRef.current.height;
 
         if (isDrawing) {
-            firebaseDraw.set("stroke", [lp.x, lp.y, offsetX, offsetY]);
+            firebaseDraw.set("stroke", [lp.x / w, lp.y / h, offsetX / w, offsetY / h]);
             drawStroke("pink", lp.x, lp.y, offsetX, offsetY);
         }
 
@@ -80,18 +119,20 @@ const CanvasDrawing = () => {
             <div id={"dashboard"}>
                 <button onClick={firebaseDraw.clear}>Clear</button>
             </div>
-            <canvas
-                id={"drawCanvas"}
-                ref={canvasRef}
-                onMouseDown={handleMouseDown}
-                onTouchStart={handleMouseDown}
-                onTouchMove={handleMouseMove}
-                onMouseMove={handleMouseMove}
-                onTouchEnd={handleMouseUp}
-                onMouseUp={handleMouseUp}
-                onTouchCancel={handleMouseUp}
-                onMouseOut={handleMouseUp}
-            />
+            <div className={"canvasContainer"}>
+                <canvas
+                    ref={canvasRef}
+                    onMouseDown={handleMouseDown}
+                    onTouchStart={handleMouseDown}
+                    onTouchMove={handleMouseMove}
+                    onMouseMove={handleMouseMove}
+                    onTouchEnd={handleMouseUp}
+                    onMouseUp={handleMouseUp}
+                    onTouchCancel={handleMouseUp}
+                    onMouseOut={handleMouseUp}
+                />
+            </div>
+
         </>
     );
 };

@@ -77,14 +77,17 @@ const App = () => {
         peerConnection.current.onconnectionstatechange = null;
         peerConnection.current = null;
     }
-    const deviceChange = async (selectedVideoDevice, selectedAudioDevice) => {
+    const deviceChange = async (selectedVideoDeviceId, selectedAudioDeviceId) => {
+
+        console.log({selectedVideoDeviceId, selectedAudioDeviceId});
+
         if (localVideoRef.current.srcObject) {
             localVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
         }
 
         localVideoRef.current.srcObject = await navigator.mediaDevices.getUserMedia({
-            video: {deviceId: {exact: selectedVideoDevice}},
-            audio: {deviceId: {exact: selectedAudioDevice}}
+            video: {deviceId: {exact: selectedVideoDeviceId}},
+            audio: {deviceId: {exact: selectedAudioDeviceId}}
         });
 
         if (peerConnection.current) {
@@ -111,17 +114,27 @@ const App = () => {
     }
 
     return (
-        <div className={`container ${status}`}>
-            <div className="top">
-                <Console/>
-                <video ref={localVideoRef} autoPlay muted playsInline={true}/>
-                <video ref={remoteVideoRef} autoPlay playsInline={true}/>
-                <DeviceSelector onSelect={deviceChange}/>
-                <UserName/>
-                <ConnectButton status={status} startCall={startCall} endCall={endCall}/>
-            </div>
-            <div className={"bottom"}>
-                <CanvasDrawing/>
+        <div className={`box ${status}`}>
+            <div className={"container"}>
+                <div className="top">
+                    <div className={"videoDiv"}>
+                        <div className={"videoContainer"}>
+                            <video ref={localVideoRef} autoPlay muted playsInline={true}/>
+                        </div>
+                        <div className={"videoContainer"}>
+                            <video ref={remoteVideoRef} autoPlay playsInline={true}/>
+                        </div>
+                        <ConnectButton status={status} startCall={startCall} endCall={endCall}/>
+                    </div>
+
+                    <DeviceSelector onSelect={deviceChange}/>
+                    <UserName/>
+                    <Console/>
+
+                </div>
+                <div className={"bottom"}>
+                    <CanvasDrawing/>
+                </div>
             </div>
         </div>
     );
