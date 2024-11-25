@@ -1,7 +1,7 @@
 import {ref, remove, onChildChanged, onChildAdded, update, push} from "firebase/database";
 import {database} from "./firebase";
 import {storage} from "../localstorage";
-import {log} from "../App";
+import {log} from "../components/console";
 
 const signalRef = ref(database, "signals");
 const ons = {candidate: [], offer: [], answer: [], close: []};
