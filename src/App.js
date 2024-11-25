@@ -67,8 +67,6 @@ const App = () => {
         socket.current.emit('answer', peerConnection.current.localDescription);
     };
     const disconnectPC = () => {
-        setStatus("closed");
-
         if (!peerConnection.current) return;
         peerConnection.current.close();
         peerConnection.current.onicecandidate = null;
@@ -76,11 +74,9 @@ const App = () => {
         peerConnection.current.ondatachannel = null;
         peerConnection.current.onconnectionstatechange = null;
         peerConnection.current = null;
+        setStatus("closed");
     }
     const deviceChange = async (selectedVideoDeviceId, selectedAudioDeviceId) => {
-
-        console.log({selectedVideoDeviceId, selectedAudioDeviceId});
-
         if (localVideoRef.current.srcObject) {
             localVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
         }
@@ -101,11 +97,11 @@ const App = () => {
     }
 
     const startCall = async () => {
-        setStatus("connecting");
         createPeerConnection();
         const offer = await peerConnection.current.createOffer();
         await peerConnection.current.setLocalDescription(offer);
         socket.current.emit('offer', offer);
+        setStatus("connecting");
     };
     const endCall = () => {
         socket.current.emit('close');
@@ -113,16 +109,29 @@ const App = () => {
         clearLog();
     }
 
+    const fullScreen = (e)=>{
+        if(e.target.readyState<4) return;
+
+        for(const i in  e.target){
+            if(i.substr(0,2)==="on"){
+             //   e.target[i]=()=>console.log(i)
+            }
+        }
+
+        e.target.onpause = () => e.target.play();
+        e.target.requestFullscreen ? e.target.requestFullscreen() : e.target.webkitSetPresentationMode('fullscreen');
+        e.target.play();
+    }
     return (
         <div className={`box ${status}`}>
             <div className={"container"}>
                 <div className="top">
                     <div className={"videoDiv"}>
                         <div className={"videoContainer"}>
-                            <video ref={localVideoRef} autoPlay muted playsInline={true}/>
+                            <video onClick={fullScreen} ref={localVideoRef} autoPlay muted playsInline={true}/>
                         </div>
                         <div className={"videoContainer"}>
-                            <video ref={remoteVideoRef} autoPlay playsInline={true}/>
+                            <video onClick={fullScreen} ref={remoteVideoRef} autoPlay playsInline={true}/>
                         </div>
                         <ConnectButton status={status} startCall={startCall} endCall={endCall}/>
                     </div>
