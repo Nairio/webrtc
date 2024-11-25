@@ -17,7 +17,7 @@ body  {
 #root {
     overflow: auto;
     padding: 8px;
-    background: red;
+    background: #e5e3e3;
 }
 
 .box {
